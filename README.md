@@ -5,7 +5,7 @@ Modified theme for Omeka S. Allows for items listed in browse view to list all t
 To install, uncompress the view.zip file and replace the files in that path on the Omeka server. 
 
 
-* Data dictionary:
+Data dictionary:
 * dcterms:title = Scholium Number
 * dcterms:identifier = Paragraph
 * bibo:edition = Manuscript
