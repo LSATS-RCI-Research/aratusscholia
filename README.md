@@ -20,3 +20,4 @@ Data dictionary:
 * dcterms:subject = Constellations/Themes
 * dcterms:bibliographicCitation = Bibliographic Citation
 * foaf:topic = Notes
+* foaf:knows = Voice
