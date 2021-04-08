@@ -1,0 +1,101 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'item resource browse');
+
+$query = $this->params()->fromQuery();
+$itemSetShow = isset($itemSet);
+if ($itemSetShow):
+    $this->htmlElement('body')->appendAttribute('class', 'item-set');
+    $query['item_set_id'] = $itemSet->id();
+endif;
+$headingTerm = $this->siteSetting('browse_heading_property_term', 'dcterms:title');
+$bodyTerm = $this->siteSetting('browse_body_property_term', 'dcterms:description');
+$sortHeadings = [
+    [
+        'label' => $translate('Title'),
+        'value' => 'dcterms:title'
+    ],
+    [
+        'label' => $translate('Identifier'),
+        'value' => 'dcterms:identifier'
+    ],
+    [
+        'label' => $translate('Class'),
+        'value' => 'resource_class_label'
+    ],
+    [
+        'label' => $translate('Created'),
+        'value' => 'created'
+    ],
+];
+?>
+
+<?php if ($itemSetShow): ?>
+    <?php echo $this->pageTitle($itemSet->displayTitle(), 2); ?>
+    <h3><?php echo $translate('Item set'); ?></h3>
+    <div class="metadata">
+        <?php echo $itemSet->displayValues(); ?>
+    </div>
+    <div class="item-set-items">
+    <?php echo '<h3>' . $escape($translate('Items')) . '</h3>'; ?>
+<?php else: ?>
+    <?php echo $this->pageTitle($translate('Items'), 2); ?>
+<?php endif; ?> 
+
+<?php echo $this->searchFilters(); ?>
+
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+    <?php echo $this->hyperlink($translate('Advanced search'), $this->url('site/resource', ['controller' => 'item', 'action' => 'search'], ['query' => $query], true), ['class' => 'advanced-search']); ?>
+    <?php echo $this->sortSelector($sortHeadings); ?>
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+<ul class="resource-list">
+<?php
+foreach ($items as $item):
+    $heading = $item->value($headingTerm, ['default' => $translate('[Untitled]')]);
+    $body = $item->value($bodyTerm);
+?>
+
+
+<!-- begin customized list view 9/18/19 --!>
+<li class="item resource">
+	<p><?php echo $item->value('dcterms:title'); ?> <?php echo $item->value('dcterms:identifier'); ?> </p>
+	<p><?php echo $item->value('bibo:edition'); ?> </p>
+	<table>
+		<tr border=0 style="vertical-align:top"><td><?php echo $item->value('dcterms:description'); ?></td><td><?php echo $item->value('dcterms:extent'); ?></td><td><?php echo $item->value('dcterms:format'); ?></td></tr>
+		<tr border=0 style="vertical-align:top"><td><?php echo $item->value('bibo:translationOf'); ?></td><td><?php echo $item->value('bibo:transcriptOf'); ?></td><td><?php echo $item->value('bibo:translator'); ?></td></tr>
+	</table>
+	<p><?php echo $item->value('bibo:locator'); ?> </p>
+	<p><?php echo $item->value('bibo:number'); ?> </p>
+	<p><?php echo $item->value('dcterms:subject'); ?> </p>
+	<p><?php echo $item->value('dcterms:bibliographicCitation'); ?> </p>
+	<p><?php echo $item->value('foaf:topic'); ?> </p>
+	<p><?php echo $item->value('foaf:knows'); ?> </p>
+
+</li>	
+<!-- end customized list view --!>
+
+<!--
+JB: 9/11/19: This was used previously to display all fields and values of an item in the list view
+<?php echo $item->displayValues(); ?>
+--!>
+
+   <!-- 
+   
+   JB: 6/19/2019: Copied the above item displayValues() code from the item show page and commented out the list view below
+   
+   <li class="item resource">
+        <?php echo $item->linkRaw($this->thumbnail($item, 'medium')); ?>
+        <h4><?php echo $item->link($heading); ?></h4>
+        <?php if ($body): ?>
+        <div class="description"><?php echo $body; ?></div>
+        <?php endif; ?> --!>
+    </li>
+<?php endforeach; ?>
+</ul>
+<?php echo ($itemSetShow) ? '</div>' : ''; ?>
+<?php $this->trigger('view.browse.after'); ?>
+<?php echo $this->pagination(); ?>
